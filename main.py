@@ -4,20 +4,30 @@ import pyautogui
 
 
 cap = cv2.VideoCapture(0)
+
 hand_detector = mp.solutions.hands.Hands()
+
 drawing_utils = mp.solutions.drawing_utils
+
 scr_wid, scr_height = pyautogui.size()
+
 index_y = 0
 index_x = 0
 
 
 while True:
     _, frame = cap.read()
+
     frame = cv2.flip(frame, 1)
+
     frame_height, frame_wid, _ = frame.shape
+
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
     output = hand_detector.process(rgb_frame)
+
     hands = output.multi_hand_landmarks
+
     if hands:
         for hand in hands:
             drawing_utils.draw_landmarks(frame, hand)
@@ -26,6 +36,7 @@ while True:
             for id, landmark in enumerate(landmarks):
                 x = int(landmark.x*frame_wid)
                 y = int(landmark.y*frame_height)
+
                 if id == 8:
                     cv2.circle(img=frame, center=(x, y), radius=10, color=(0, 255, 255))
                     index_x = scr_wid/frame_wid*x
@@ -37,10 +48,13 @@ while True:
                     mid_x = scr_wid/frame_wid*x
                     mid_y = scr_height/frame_height*y
                     print('outside', abs(index_y - mid_y))
+
                     if abs(index_y - mid_y) < 20:
                         pyautogui.click()
                         pyautogui.sleep(1)
                     elif abs(index_y - mid_y) < 100:
                         pyautogui.moveTo(index_x, index_y)
+
     cv2.imshow('Virtual Mouse', frame)
+    
     cv2.waitKey(1)
